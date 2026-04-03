@@ -160,20 +160,13 @@ function ReviewFlowPage() {
               role="region"
               aria-label="Special offer"
             >
-              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[#A8E6CF]/95">
-                Bar &amp; restaurant — guest appreciation
-              </p>
-              <p className="mt-2 text-5xl font-black leading-none tracking-tight text-[#FFE566] drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] sm:text-6xl">
+              <p className="text-5xl font-black leading-none tracking-tight text-[#FFE566] drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] sm:text-6xl">
                 30% OFF
               </p>
               <p className="mx-auto mt-4 max-w-[19rem] text-[15px] font-medium leading-relaxed text-white/95 sm:text-base">
                 Leave an honest public review on{' '}
                 <span className="font-semibold text-white">Google Maps</span>, then show your
                 published review to our team when you order.
-              </p>
-              <p className="mx-auto mt-4 max-w-[19rem] text-xs leading-relaxed text-white/70">
-                Public reviews help future guests choose with confidence. If something missed the mark,
-                a private note below still reaches our managers directly.
               </p>
             </div>
           )}

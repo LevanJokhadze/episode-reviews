@@ -113,23 +113,7 @@ function ReviewFlowPage() {
     }
   }
 
-  const openGoogleReviewPopup = () => {
-    const width = 520
-    const height = 760
-    const left = Math.max((window.screen.width - width) / 2, 0)
-    const top = Math.max((window.screen.height - height) / 2, 0)
-
-    const popup = window.open(
-      GOOGLE_REVIEW_URL,
-      'episode-google-review',
-      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`,
-    )
-
-    if (popup && !popup.closed) {
-      popup.focus()
-      return
-    }
-
+  const openGoogleReviewPage = () => {
     window.location.assign(GOOGLE_REVIEW_URL)
   }
 
@@ -139,7 +123,7 @@ function ReviewFlowPage() {
     setSubmitError('')
 
     if (value === 5) {
-      openGoogleReviewPopup()
+      openGoogleReviewPage()
       return
     }
   }

@@ -83,7 +83,6 @@ function StarIcon({ active }: { active: boolean }) {
 }
 
 function ReviewFlowPage() {
-  const navigate = useNavigate()
   const [rating, setRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)
   const [feedback, setFeedback] = useState('')
@@ -145,38 +144,11 @@ function ReviewFlowPage() {
     }
   }
 
-  const handleBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1)
-    } else {
-      navigate('/')
-    }
-  }
-
   return (
     <main className="relative min-h-screen font-sans text-neutral-900 antialiased">
       <VideoBackdrop />
       <section className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">
         <div className="relative w-full max-w-md rounded-[2rem] bg-white px-6 pb-8 pt-5 shadow-[0_8px_40px_rgba(0,0,0,0.12)] sm:px-8 sm:pb-10 sm:pt-6">
-          <div className="mb-4 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleBack}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#1a5c52] transition-colors hover:bg-black/5"
-              aria-label="Back"
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M15 18l-6-6 6-6"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
-
           <p className="mb-1 text-center text-xs font-semibold uppercase tracking-wide text-neutral-500">
             Give feedback
           </p>

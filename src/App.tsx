@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import backgroundVideoUrl from './assets/video.mp4'
 
 const GOOGLE_REVIEW_URL =
@@ -19,9 +18,9 @@ function readMockReviews(): Review[] {
   try {
     const raw = localStorage.getItem(MOCK_REVIEWS_KEY)
     if (!raw) return []
-    const parsed = JSON.parse(raw) as unknown
+    const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
-    return parsed as Review[]
+    return parsed
   } catch {
     return []
   }
@@ -58,10 +57,7 @@ function StarIcon({ active }: { active: boolean }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className={[
-        'h-12 w-12 transition-transform duration-200',
-        active ? 'scale-105' : 'scale-100',
-      ].join(' ')}
+      className="h-12 w-12 transition-transform duration-200"
     >
       <path
         fill={active ? '#FACC15' : '#D4D4D4'}
@@ -103,7 +99,7 @@ function ReviewFlowPage() {
       <section className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">
         <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg">
 
-          {/* ❌ Arrow section completely removed */}
+          {/* Arrow is completely removed */}
 
           <p className="text-center text-xs uppercase text-neutral-500">
             Give feedback

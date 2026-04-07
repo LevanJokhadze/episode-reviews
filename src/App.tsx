@@ -6,7 +6,6 @@ import backgroundVideoUrl from './assets/video.mp4'
 const GOOGLE_REVIEW_URL =
   'https://search.google.com/local/writereview?placeid=ChIJ3xtZWjRzREARXoBIQsqPe1k'
 
-/** Mock persistence (no backend). Replace with API calls when ready. */
 const MOCK_REVIEWS_KEY = 'episode-review-mock-reviews'
 
 type Review = {
@@ -93,15 +92,15 @@ function ReviewFlowPage() {
   const [submitted, setSubmitted] = useState(false)
 
   const displayRating = hoverRating || rating
-  const showFeedback = rating > 0 && rating <= 3
+  const showFeedback = rating > 0 && rating <= 4
 
   const submitFeedback = async () => {
     if (isSubmitting || !showFeedback) return
+
     setSubmitError('')
     setIsSubmitting(true)
 
     try {
-      // Pretend network latency; no backend call.
       await new Promise((r) => setTimeout(r, 450))
       appendMockReview({ rating, feedback: feedback.trim() })
       setSubmitted(true)
@@ -115,10 +114,34 @@ function ReviewFlowPage() {
     }
   }
 
+  const openGoogleReviewPopup = () => {
+    const width = 520
+    const height = 760
+    const left = Math.max((window.screen.width - width) / 2, 0)
+    const top = Math.max((window.screen.height - height) / 2, 0)
+
+    const popup = window.open(
+      GOOGLE_REVIEW_URL,
+      'episode-google-review',
+      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`,
+    )
+
+    if (popup && !popup.closed) {
+      popup.focus()
+      return
+    }
+
+    window.location.assign(GOOGLE_REVIEW_URL)
+  }
+
   const handleRatingSelect = (value: number) => {
     setRating(value)
-    if (value >= 4) {
-      window.open(GOOGLE_REVIEW_URL, '_blank', 'noopener,noreferrer')
+    setSubmitted(false)
+    setSubmitError('')
+
+    if (value === 5) {
+      openGoogleReviewPopup()
+      return
     }
   }
 
@@ -154,23 +177,6 @@ function ReviewFlowPage() {
             </button>
           </div>
 
-          {rating !== 3 && (
-            <div
-              className="mb-7 rounded-2xl bg-[#143d32] px-4 py-7 text-center shadow-[0_12px_40px_rgba(20,61,50,0.35)] ring-2 ring-[#2D5A27]/40 sm:px-6 sm:py-8"
-              role="region"
-              aria-label="Special offer"
-            >
-              <p className="text-5xl font-black leading-none tracking-tight text-[#FFE566] drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)] sm:text-6xl">
-                30% OFF
-              </p>
-              <p className="mx-auto mt-4 max-w-[19rem] text-[15px] font-medium leading-relaxed text-white/95 sm:text-base">
-                Leave an honest public review on{' '}
-                <span className="font-semibold text-white">Google Maps</span>, then show your
-                published review to our team when you order.
-              </p>
-            </div>
-          )}
-
           <p className="mb-1 text-center text-xs font-semibold uppercase tracking-wide text-neutral-500">
             Give feedback
           </p>
@@ -197,22 +203,6 @@ function ReviewFlowPage() {
               ))}
             </div>
           </div>
-
-          {rating >= 4 && (
-            <div
-              className="mb-6 rounded-2xl border-2 border-[#2D5A27]/25 bg-[#e8f5ef] px-4 py-4 text-center shadow-sm sm:px-5"
-              role="status"
-            >
-              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#1a5c52]">
-                Google Maps
-              </p>
-              <p className="mt-2 text-sm font-semibold leading-snug text-neutral-900 sm:text-[15px]">
-                Complete your review in the Google Maps tab that just opened, then show your{' '}
-                <span className="whitespace-nowrap">published review</span> at the bar to redeem
-                this offer.
-              </p>
-            </div>
-          )}
 
           <AnimatePresence mode="wait" initial={false}>
             {showFeedback && (
@@ -243,21 +233,8 @@ function ReviewFlowPage() {
                   {isSubmitting ? 'Publishing…' : 'PUBLISH FEEDBACK'}
                 </button>
                 <p className="mt-4 text-center text-xs leading-relaxed text-neutral-600">
-                  {rating === 3 ? (
-                    <>
-                      Your message is sent to our team in confidence—we use it to improve the
-                      experience for every guest.
-                    </>
-                  ) : (
-                    <>
-                      This note is <span className="font-semibold text-neutral-800">private</span>{' '}
-                      and goes straight to our managers. The{' '}
-                      <span className="font-semibold text-neutral-800">30% bar &amp; restaurant offer</span>{' '}
-                      is redeemed only with a{' '}
-                      <span className="font-semibold text-[#1a5c52]">published Google Maps review</span>{' '}
-                      shown to staff at the bar.
-                    </>
-                  )}
+                  Your message is sent to our team in confidence. We use it to improve the
+                  experience for every guest.
                 </p>
                 {submitError && (
                   <p className="mt-3 text-center text-sm text-red-600">{submitError}</p>
@@ -286,21 +263,6 @@ function ReviewFlowPage() {
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   className="w-full max-w-[min(100%,320px)] overflow-hidden rounded-3xl bg-white shadow-xl"
                 >
-                  {rating !== 3 && (
-                    <div className="bg-[#143d32] px-5 py-5 text-center sm:py-6">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#A8E6CF]/95">
-                        Redeem at the bar
-                      </p>
-                      <p className="mt-1 text-4xl font-black leading-none tracking-tight text-[#FFE566] sm:text-5xl">
-                        30% OFF
-                      </p>
-                      <p className="mt-3 text-sm font-semibold leading-snug text-white">
-                        Post on <span className="text-white">Google Maps</span>, then show your{' '}
-                        <span className="text-[#FFE566]">live published review</span> to our team—bar
-                        &amp; restaurant.
-                      </p>
-                    </div>
-                  )}
                   <div className="px-6 pb-8 pt-6 text-center">
                     <h2
                       id="success-title"
@@ -311,12 +273,6 @@ function ReviewFlowPage() {
                     <p className="text-sm leading-relaxed text-neutral-600">
                       We read every message and use it to raise our standards for every guest.
                     </p>
-                    {rating !== 3 && (
-                      <p className="mt-3 rounded-xl bg-neutral-100 px-3 py-2.5 text-xs font-medium leading-relaxed text-neutral-800">
-                        <span className="font-semibold text-[#1a5c52]">Google Maps:</span> leave a
-                        public review there, then present it at the bar to apply your guest offer.
-                      </p>
-                    )}
                   </div>
                 </motion.div>
               </motion.div>
@@ -340,52 +296,50 @@ function ReviewsPage() {
     <main className="relative min-h-screen font-sans text-neutral-900 antialiased">
       <VideoBackdrop />
       <div className="relative z-10 mx-auto max-w-3xl p-5 md:p-8">
-      <div className="rounded-[2rem] bg-white px-6 py-6 shadow-[0_8px_40px_rgba(0,0,0,0.12)] md:px-8 md:py-8">
-        <div className="mb-6 flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#1a5c52] hover:bg-black/5"
-            aria-label="Back"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M15 18l-6-6 6-6"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-          <h1 className="text-2xl font-bold tracking-tight text-black">All reviews</h1>
-        </div>
-
-        {reviews.length === 0 && (
-          <p className="text-neutral-600">No reviews yet.</p>
-        )}
-
-        <div className="space-y-3">
-          {reviews.map((review) => (
-            <article
-              key={review.id}
-              className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4"
+        <div className="rounded-[2rem] bg-white px-6 py-6 shadow-[0_8px_40px_rgba(0,0,0,0.12)] md:px-8 md:py-8">
+          <div className="mb-6 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#1a5c52] hover:bg-black/5"
+              aria-label="Back"
             >
-              <div className="mb-2 flex items-center justify-between text-xs text-neutral-500">
-                <span>#{review.id}</span>
-                <span>{new Date(review.created_at).toLocaleString()}</span>
-              </div>
-              <p className="mb-1 text-sm text-[#B8860B]">
-                {'★'.repeat(review.rating)}
-                <span className="text-neutral-300">{'★'.repeat(5 - review.rating)}</span>
-              </p>
-              <p className="text-sm text-neutral-800">
-                {review.feedback || 'Positive review routed to Google.'}
-              </p>
-            </article>
-          ))}
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M15 18l-6-6 6-6"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+            <h1 className="text-2xl font-bold tracking-tight text-black">All reviews</h1>
+          </div>
+
+          {reviews.length === 0 && <p className="text-neutral-600">No reviews yet.</p>}
+
+          <div className="space-y-3">
+            {reviews.map((review) => (
+              <article
+                key={review.id}
+                className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4"
+              >
+                <div className="mb-2 flex items-center justify-between text-xs text-neutral-500">
+                  <span>#{review.id}</span>
+                  <span>{new Date(review.created_at).toLocaleString()}</span>
+                </div>
+                <p className="mb-1 text-sm text-[#B8860B]">
+                  {'★'.repeat(review.rating)}
+                  <span className="text-neutral-300">{'★'.repeat(5 - review.rating)}</span>
+                </p>
+                <p className="text-sm text-neutral-800">
+                  {review.feedback || 'Positive review routed to Google.'}
+                </p>
+              </article>
+            ))}
+          </div>
         </div>
-      </div>
       </div>
     </main>
   )

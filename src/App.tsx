@@ -6,10 +6,8 @@ import backgroundVideoUrl from './assets/video.mp4'
 const GOOGLE_REVIEW_URL =
   'https://search.google.com/local/writereview?placeid=ChIJ3xtZWjRzREARXoBIQsqPe1k'
 
-const configuredBackendBaseUrl = import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '')
-const REVIEWS_API_URL = configuredBackendBaseUrl
-  ? `${configuredBackendBaseUrl}/api/reviews`
-  : '/api/reviews'
+const BACKEND_BASE_URL = 'https://episode-review-backend.vercel.app'
+const REVIEWS_API_URL = `${BACKEND_BASE_URL}/api/reviews`
 
 type Review = {
   id: number

@@ -11,6 +11,7 @@ const REVIEWS_API_URL = `${BACKEND_BASE_URL}/api/reviews`
 
 type Review = {
   id: number
+  guest_name: string
   rating: number
   feedback: string
   created_at: string
@@ -99,6 +100,7 @@ function StarIcon({ active }: { active: boolean }) {
 }
 
 function ReviewFlowPage() {
+  const [guestName, setGuestName] = useState('')
   const [rating, setRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)
   const [feedback, setFeedback] = useState('')
@@ -116,8 +118,9 @@ function ReviewFlowPage() {
     setIsSubmitting(true)
 
     try {
-      await createReview({ rating, feedback: feedback.trim() })
+      await createReview({ guest_name: guestName.trim(), rating, feedback: feedback.trim() })
       setSubmitted(true)
+      setGuestName('')
       setFeedback('')
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Something went wrong.')
@@ -184,6 +187,14 @@ function ReviewFlowPage() {
                 className="overflow-hidden"
               >
                 <p className="mb-3 text-[15px] text-neutral-800">Care to share more about it?</p>
+                <input
+                  type="text"
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  maxLength={80}
+                  placeholder="Your name"
+                  className="mb-3 w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-[15px] text-neutral-900 outline-none ring-0 transition-shadow placeholder:text-neutral-400 focus:border-neutral-300 focus:shadow-[0_0_0_3px_rgba(45,90,39,0.12)]"
+                />
                 <textarea
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
@@ -315,7 +326,7 @@ function ReviewsPage() {
             {reviews.map((review) => (
               <article key={review.id} className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4">
                 <div className="mb-2 flex items-center justify-between text-xs text-neutral-500">
-                  <span>#{review.id}</span>
+                  <span>{review.guest_name || `Review #${review.id}`}</span>
                   <span>{new Date(review.created_at).toLocaleString()}</span>
                 </div>
                 <p className="mb-1 text-sm text-[#B8860B]">

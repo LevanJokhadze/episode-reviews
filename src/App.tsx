@@ -65,7 +65,7 @@ function StarIcon({ active }: { active: boolean }) {
       viewBox="0 0 24 24"
       aria-hidden="true"
       className={[
-        'h-12 w-12 transition-transform duration-200 sm:h-[3.25rem] sm:w-[3.25rem]',
+        'h-10 w-10 transition-transform duration-200 sm:h-[3.25rem] sm:w-[3.25rem]',
         active
           ? 'scale-105 drop-shadow-[0_1px_6px_rgba(234,179,8,0.35)]'
           : 'scale-100',
@@ -141,7 +141,7 @@ function ReviewFlowPage() {
           </h1>
 
           <div className="mb-6">
-            <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2.5">
+            <div className="flex flex-nowrap items-center justify-center gap-1 sm:gap-2.5">
               {Array.from({ length: 5 }, (_, idx) => idx + 1).map((value) => (
                 <button
                   key={value}
@@ -152,7 +152,7 @@ function ReviewFlowPage() {
                   onBlur={() => setHoverRating(0)}
                   onClick={() => handleRatingSelect(value)}
                   aria-label={`Rate ${value} star${value > 1 ? 's' : ''}`}
-                  className="rounded-lg p-1 outline-none transition-transform hover:scale-[1.04] active:scale-95 focus-visible:ring-2 focus-visible:ring-[#2D5A27]/35 focus-visible:ring-offset-1"
+                  className="shrink-0 rounded-lg p-0.5 outline-none transition-transform hover:scale-[1.04] active:scale-95 focus-visible:ring-2 focus-visible:ring-[#2D5A27]/35 focus-visible:ring-offset-1 sm:p-1"
                 >
                   <StarIcon active={value <= displayRating} />
                 </button>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Route, Routes, useNavigate } from 'react-router-dom'
-import backgroundVideoUrl from './assets/video.mp4'
+import backgroundImageUrl from './assets/service-living.jpg'
 
 const GOOGLE_REVIEW_URL =
   'https://search.google.com/local/writereview?placeid=ChIJ3xtZWjRzREARXoBIQsqPe1k'
@@ -53,23 +53,17 @@ async function createReview(input: Omit<Review, 'id' | 'created_at'>): Promise<R
   return (await response.json()) as Review
 }
 
-function VideoBackdrop() {
+function ImageBackdrop() {
   return (
     <div
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#1a2e28]"
       aria-hidden
     >
-      <video
-        className="absolute left-1/2 top-1/2 h-full w-full min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover opacity-90"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        disablePictureInPicture
-      >
-        <source src={backgroundVideoUrl} type="video/mp4" />
-      </video>
+      <img
+        src={backgroundImageUrl}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover opacity-92"
+      />
       <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/25 to-black/40" />
       <div className="absolute inset-0 bg-[#C1E1C1]/25" />
     </div>
@@ -96,6 +90,55 @@ function StarIcon({ active }: { active: boolean }) {
         d="M12 2.75l2.62 5.31 5.86.85-4.24 4.14 1 5.84L12 16.13 6.76 18.9l1-5.84L3.52 8.9l5.86-.85L12 2.75z"
       />
     </svg>
+  )
+}
+
+function EpisodeLogo() {
+  return (
+    <div className="mb-4 flex justify-center">
+      <svg
+        aria-hidden="true"
+        width="236"
+        height="48"
+        viewBox="0 0 236 48"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-8 w-auto text-[#22363b] sm:h-9"
+      >
+        <path
+          fill="currentColor"
+          d="M97.9691 29.4204C93.6245 29.4204 90.478 27.6751 88.082 23.9276L80.1828 30.4083C83.8757 34.5576 89.4183 37.6531 97.2582 37.6531C107.896 37.6531 112.536 33.0099 112.536 27.7673C112.536 22.5708 109.693 19.0143 96.7118 17.9671C90.2279 17.4204 88.8785 16.0768 88.8785 13.4819C88.8785 10.6894 90.8204 8.2393 95.3163 8.2393C100.207 8.2393 103.505 10.1888 105.75 14.0351L113.241 7.0933C108.995 2.64764 103.308 0 95.3689 0C85.8307 0 81.0386 4.64984 81.0386 10.2415C81.0386 15.4907 84.0337 18.5071 96.7118 19.5543C103.255 20.101 104.506 21.2272 104.506 24.0263C104.506 27.1745 102.36 29.4204 97.9691 29.4204Z"
+        />
+        <path fill="currentColor" d="M234.446 46.4457V0.625686H236V48H0V46.4457H234.446Z" />
+        <path
+          fill="currentColor"
+          d="M0.0263247 37.1131V0.652031H27.8379V8.79254H9.01819V18.1581H23.9936V19.7124H9.01819V28.6696H27.8379V37.1131H0.0263247Z"
+        />
+        <path
+          fill="currentColor"
+          d="M197.314 0.652031V37.1131H225.119V28.6696H206.299V19.7124H221.275V18.1581H206.299V8.79254H225.119V0.652031H197.314Z"
+        />
+        <path
+          fill="currentColor"
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M41.5824 37.1131V25.3304H44.5775C54.662 25.3304 62.6007 20.9835 62.6007 12.3425C62.6007 5.24918 57.2622 0.652031 47.9741 0.652031H32.4984V37.1131H41.5824ZM41.5824 23.7695V8.79254H45.7228C50.9692 8.79254 54.3131 11.4402 54.3131 16.584C54.3131 21.8266 51.3707 23.7695 44.38 23.7695H41.5824Z"
+        />
+        <path fill="currentColor" d="M76.3518 0.652031H67.2678V37.1131H76.3518V0.652031Z" />
+        <path
+          fill="currentColor"
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M116.4 18.8825C116.4 8.74643 123.437 0.151482 135.22 0.151482C147.648 0.151482 154.092 8.64105 154.092 18.8825C154.092 29.0187 147.2 37.6136 135.174 37.6136C121.989 37.6136 116.4 29.1701 116.4 18.8825ZM145.055 18.8825C145.055 13.0867 141.809 8.39078 135.22 8.39078C128.828 8.39078 125.484 13.1855 125.484 18.8825C125.484 24.5796 128.177 29.2689 135.167 29.2689C141.711 29.2689 145.055 24.6257 145.055 18.8825Z"
+        />
+        <path
+          fill="currentColor"
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M172.583 0.652031H158.76V37.1131H172.886C179.027 37.1131 183.668 35.4138 187.012 32.4698C190.705 29.2228 192.653 24.3754 192.653 18.6323C192.653 6.89572 185.413 0.652031 172.583 0.652031ZM167.738 28.6696V8.79254H172.478C180.12 8.79254 183.563 11.6378 183.563 18.4808C183.563 24.876 180.219 28.6696 172.781 28.6696H167.738Z"
+        />
+      </svg>
+    </div>
   )
 }
 
@@ -146,9 +189,10 @@ function ReviewFlowPage() {
 
   return (
     <main className="relative min-h-screen font-sans text-neutral-900 antialiased">
-      <VideoBackdrop />
+      <ImageBackdrop />
       <section className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">
         <div className="relative w-full max-w-md rounded-[2rem] bg-white px-6 pb-8 pt-5 shadow-[0_8px_40px_rgba(0,0,0,0.12)] sm:px-8 sm:pb-10 sm:pt-6">
+          <EpisodeLogo />
           <p className="mb-1 text-center text-xs font-semibold uppercase tracking-wide text-neutral-500">
             Give feedback
           </p>
@@ -293,7 +337,7 @@ function ReviewsPage() {
 
   return (
     <main className="relative min-h-screen font-sans text-neutral-900 antialiased">
-      <VideoBackdrop />
+      <ImageBackdrop />
       <div className="relative z-10 mx-auto max-w-3xl p-5 md:p-8">
         <div className="rounded-[2rem] bg-white px-6 py-6 shadow-[0_8px_40px_rgba(0,0,0,0.12)] md:px-8 md:py-8">
           <div className="mb-6 flex items-center gap-3">

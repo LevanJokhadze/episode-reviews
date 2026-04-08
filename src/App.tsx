@@ -6,7 +6,13 @@ import backgroundVideoUrl from './assets/video.mp4'
 const GOOGLE_REVIEW_URL =
   'https://search.google.com/local/writereview?placeid=ChIJ3xtZWjRzREARXoBIQsqPe1k'
 
-const MOCK_REVIEWS_KEY = 'episode-review-mock-reviews'
+const BACKEND_BASE_URL = (
+  import.meta.env.VITE_BACKEND_URL ?? 'https://episode-review-backend.vercel.app'
+).replace(
+  /\/$/,
+  '',
+)
+const REVIEWS_API_URL = `${BACKEND_BASE_URL}/api/reviews`
 
 type Review = {
   id: number
@@ -15,25 +21,40 @@ type Review = {
   created_at: string
 }
 
-function readMockReviews(): Review[] {
-  try {
-    const raw = localStorage.getItem(MOCK_REVIEWS_KEY)
-    if (!raw) return []
-    const parsed = JSON.parse(raw) as unknown
-    if (!Array.isArray(parsed)) return []
-    return parsed as Review[]
-  } catch {
-    return []
+async function fetchReviews(): Promise<Review[]> {
+  const response = await fetch(REVIEWS_API_URL, {
+    method: 'GET',
+    headers: { Accept: 'application/json' },
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to load reviews.')
   }
+
+  const payload = (await response.json()) as unknown
+  if (!Array.isArray(payload)) {
+    throw new Error('Invalid reviews response from backend.')
+  }
+
+  return payload as Review[]
 }
 
-function appendMockReview(entry: Omit<Review, 'id' | 'created_at'>): Review {
-  const list = readMockReviews()
-  const nextId = list.reduce((m, r) => Math.max(m, r.id), 0) + 1
-  const created_at = new Date().toISOString()
-  const row: Review = { id: nextId, created_at, ...entry }
-  localStorage.setItem(MOCK_REVIEWS_KEY, JSON.stringify([row, ...list]))
-  return row
+async function createReview(input: Omit<Review, 'id' | 'created_at'>): Promise<Review> {
+  const response = await fetch(REVIEWS_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(input),
+  })
+
+  if (!response.ok) {
+    const errorPayload = (await response.json().catch(() => null)) as { error?: string } | null
+    throw new Error(errorPayload?.error ?? 'Failed to submit review.')
+  }
+
+  return (await response.json()) as Review
 }
 
 function VideoBackdrop() {
@@ -100,14 +121,11 @@ function ReviewFlowPage() {
     setIsSubmitting(true)
 
     try {
-      await new Promise((r) => setTimeout(r, 450))
-      appendMockReview({ rating, feedback: feedback.trim() })
+      await createReview({ rating, feedback: feedback.trim() })
       setSubmitted(true)
       setFeedback('')
     } catch (error) {
-      setSubmitError(
-        error instanceof Error ? error.message : 'Something went wrong.',
-      )
+      setSubmitError(error instanceof Error ? error.message : 'Something went wrong.')
     } finally {
       setIsSubmitting(false)
     }
@@ -170,9 +188,7 @@ function ReviewFlowPage() {
                 transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
                 className="overflow-hidden"
               >
-                <p className="mb-3 text-[15px] text-neutral-800">
-                  Care to share more about it?
-                </p>
+                <p className="mb-3 text-[15px] text-neutral-800">Care to share more about it?</p>
                 <textarea
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
@@ -186,15 +202,13 @@ function ReviewFlowPage() {
                   disabled={isSubmitting}
                   className="w-full rounded-2xl bg-[#A8E6CF] py-4 text-center text-sm font-bold uppercase tracking-[0.08em] text-[#2D5A27] shadow-sm transition-all hover:brightness-[1.02] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-65"
                 >
-                  {isSubmitting ? 'Publishing…' : 'PUBLISH FEEDBACK'}
+                  {isSubmitting ? 'Publishing...' : 'PUBLISH FEEDBACK'}
                 </button>
                 <p className="mt-4 text-center text-xs leading-relaxed text-neutral-600">
                   Your message is sent to our team in confidence. We use it to improve the
                   experience for every guest.
                 </p>
-                {submitError && (
-                  <p className="mt-3 text-center text-sm text-red-600">{submitError}</p>
-                )}
+                {submitError && <p className="mt-3 text-center text-sm text-red-600">{submitError}</p>}
               </motion.div>
             )}
           </AnimatePresence>
@@ -220,10 +234,7 @@ function ReviewFlowPage() {
                   className="w-full max-w-[min(100%,320px)] overflow-hidden rounded-3xl bg-white shadow-xl"
                 >
                   <div className="px-6 pb-8 pt-6 text-center">
-                    <h2
-                      id="success-title"
-                      className="mb-2 text-xl font-bold tracking-tight text-black"
-                    >
+                    <h2 id="success-title" className="mb-2 text-xl font-bold tracking-tight text-black">
                       Thank you!
                     </h2>
                     <p className="text-sm leading-relaxed text-neutral-600">
@@ -243,9 +254,35 @@ function ReviewFlowPage() {
 function ReviewsPage() {
   const navigate = useNavigate()
   const [reviews, setReviews] = useState<Review[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
-    setReviews(readMockReviews())
+    let cancelled = false
+
+    const load = async () => {
+      setLoadError('')
+      setIsLoading(true)
+      try {
+        const list = await fetchReviews()
+        if (!cancelled) {
+          setReviews(list)
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setLoadError(error instanceof Error ? error.message : 'Failed to load reviews.')
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    void load()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   return (
@@ -273,21 +310,22 @@ function ReviewsPage() {
             <h1 className="text-2xl font-bold tracking-tight text-black">All reviews</h1>
           </div>
 
-          {reviews.length === 0 && <p className="text-neutral-600">No reviews yet.</p>}
+          {isLoading && <p className="text-neutral-600">Loading reviews...</p>}
+          {!isLoading && loadError && <p className="text-red-600">{loadError}</p>}
+          {!isLoading && !loadError && reviews.length === 0 && (
+            <p className="text-neutral-600">No reviews yet.</p>
+          )}
 
           <div className="space-y-3">
             {reviews.map((review) => (
-              <article
-                key={review.id}
-                className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4"
-              >
+              <article key={review.id} className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4">
                 <div className="mb-2 flex items-center justify-between text-xs text-neutral-500">
                   <span>#{review.id}</span>
                   <span>{new Date(review.created_at).toLocaleString()}</span>
                 </div>
                 <p className="mb-1 text-sm text-[#B8860B]">
-                  {'★'.repeat(review.rating)}
-                  <span className="text-neutral-300">{'★'.repeat(5 - review.rating)}</span>
+                  {'\u2605'.repeat(review.rating)}
+                  <span className="text-neutral-300">{'\u2605'.repeat(5 - review.rating)}</span>
                 </p>
                 <p className="text-sm text-neutral-800">
                   {review.feedback || 'Positive review routed to Google.'}

@@ -11,7 +11,7 @@ const REVIEWS_API_URL = `${BACKEND_BASE_URL}/api/reviews`
 
 type Review = {
   id: number
-  guest_name: string
+  guest_name?: string
   rating: number
   feedback: string
   created_at: string
@@ -35,7 +35,7 @@ async function fetchReviews(): Promise<Review[]> {
   return payload as Review[]
 }
 
-async function createReview(input: Omit<Review, 'id' | 'created_at'>): Promise<Review> {
+async function createReview(input: Pick<Review, 'rating' | 'feedback'>): Promise<Review> {
   const response = await fetch(REVIEWS_API_URL, {
     method: 'POST',
     headers: {
@@ -56,16 +56,17 @@ async function createReview(input: Omit<Review, 'id' | 'created_at'>): Promise<R
 function ImageBackdrop() {
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#1a2e28]"
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#0b0908]"
       aria-hidden
     >
       <img
         src={backgroundImageUrl}
         alt=""
-        className="absolute inset-0 h-full w-full object-cover opacity-92"
+        className="absolute inset-0 h-full w-full object-cover opacity-35 blur-[2px] saturate-[0.8]"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/25 to-black/40" />
-      <div className="absolute inset-0 bg-[#C1E1C1]/25" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(195,120,46,0.26),transparent_28%),radial-gradient(circle_at_78%_14%,rgba(132,255,92,0.1),transparent_26%),radial-gradient(circle_at_50%_85%,rgba(255,140,0,0.12),transparent_30%)]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/60 to-black/70" />
+      <div className="absolute left-1/2 top-1/2 h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(120,255,88,0.08)] blur-3xl" />
     </div>
   )
 }
@@ -76,15 +77,15 @@ function StarIcon({ active }: { active: boolean }) {
       viewBox="0 0 24 24"
       aria-hidden="true"
       className={[
-        'h-10 w-10 transition-transform duration-200 sm:h-[3.25rem] sm:w-[3.25rem]',
+        'h-10 w-10 transition-transform duration-200 sm:h-[3rem] sm:w-[3rem]',
         active
-          ? 'scale-105 drop-shadow-[0_1px_6px_rgba(234,179,8,0.35)]'
+          ? 'scale-105 drop-shadow-[0_0_18px_rgba(212,255,33,0.45)]'
           : 'scale-100',
       ].join(' ')}
     >
       <path
-        fill={active ? '#FACC15' : '#D4D4D4'}
-        stroke={active ? '#CA8A04' : '#A3A3A3'}
+        fill={active ? '#D8FF1F' : '#5C6358'}
+        stroke={active ? '#E9FF7A' : '#777E75'}
         strokeWidth="1"
         strokeLinejoin="round"
         d="M12 2.75l2.62 5.31 5.86.85-4.24 4.14 1 5.84L12 16.13 6.76 18.9l1-5.84L3.52 8.9l5.86-.85L12 2.75z"
@@ -95,7 +96,7 @@ function StarIcon({ active }: { active: boolean }) {
 
 function EpisodeLogo() {
   return (
-    <div className="mb-4 flex justify-center">
+    <div className="mb-3 flex justify-center">
       <svg
         aria-hidden="true"
         width="236"
@@ -103,7 +104,7 @@ function EpisodeLogo() {
         viewBox="0 0 236 48"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-8 w-auto text-[#22363b] sm:h-9"
+        className="h-7 w-auto text-[#22363b] sm:h-8"
       >
         <path
           fill="currentColor"
@@ -143,7 +144,6 @@ function EpisodeLogo() {
 }
 
 function ReviewFlowPage() {
-  const [guestName, setGuestName] = useState('')
   const [rating, setRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)
   const [feedback, setFeedback] = useState('')
@@ -161,9 +161,8 @@ function ReviewFlowPage() {
     setIsSubmitting(true)
 
     try {
-      await createReview({ guest_name: guestName.trim(), rating, feedback: feedback.trim() })
+      await createReview({ rating, feedback: feedback.trim() })
       setSubmitted(true)
-      setGuestName('')
       setFeedback('')
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Something went wrong.')
@@ -183,25 +182,27 @@ function ReviewFlowPage() {
 
     if (value === 5) {
       openGoogleReviewPage()
-      return
     }
   }
 
   return (
-    <main className="relative min-h-screen font-sans text-neutral-900 antialiased">
+    <main className="relative min-h-screen font-sans text-white antialiased">
       <ImageBackdrop />
       <section className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">
-        <div className="relative w-full max-w-md rounded-[2rem] bg-white px-6 pb-8 pt-5 shadow-[0_8px_40px_rgba(0,0,0,0.12)] sm:px-8 sm:pb-10 sm:pt-6">
-          <EpisodeLogo />
-          <p className="mb-1 text-center text-xs font-semibold uppercase tracking-wide text-neutral-500">
-            Give feedback
-          </p>
-          <h1 className="mb-6 text-center text-lg font-bold tracking-tight text-neutral-900 sm:text-xl">
-            How did we do?
-          </h1>
+        <div className="relative w-full max-w-[38rem] overflow-hidden rounded-[1.8rem] border border-white/8 bg-[rgba(17,18,20,0.88)] px-5 pb-6 pt-5 shadow-[0_25px_80px_rgba(0,0,0,0.48)] backdrop-blur-xl sm:px-8 sm:pb-8 sm:pt-6">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(142,255,112,0.09),transparent_42%)]" />
 
-          <div className="mb-6">
-            <div className="flex flex-nowrap items-center justify-center gap-1 sm:gap-2.5">
+          <div className="relative z-10 mx-auto max-w-[31rem] pt-5 text-center sm:pt-6">
+            <EpisodeLogo />
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.32em] text-white/40">
+              Guest Review
+            </p>
+            <h1 className="mx-auto max-w-[24rem] text-3xl font-semibold leading-[0.95] tracking-tight text-white sm:text-[3.5rem]">
+              How was your stay with us?
+            </h1>
+
+            <div className="mb-5 mt-6">
+              <div className="flex flex-nowrap items-center justify-center gap-1.5 sm:gap-3">
               {Array.from({ length: 5 }, (_, idx) => idx + 1).map((value) => (
                 <button
                   key={value}
@@ -212,56 +213,51 @@ function ReviewFlowPage() {
                   onBlur={() => setHoverRating(0)}
                   onClick={() => handleRatingSelect(value)}
                   aria-label={`Rate ${value} star${value > 1 ? 's' : ''}`}
-                  className="shrink-0 rounded-lg p-0.5 outline-none transition-transform hover:scale-[1.04] active:scale-95 focus-visible:ring-2 focus-visible:ring-[#2D5A27]/35 focus-visible:ring-offset-1 sm:p-1"
+                  className="shrink-0 rounded-xl p-0.5 outline-none transition-transform hover:scale-[1.04] active:scale-95 focus-visible:ring-2 focus-visible:ring-[#d8ff1f]/35 focus-visible:ring-offset-0 sm:p-1"
                 >
                   <StarIcon active={value <= displayRating} />
                 </button>
               ))}
+              </div>
             </div>
-          </div>
 
-          <AnimatePresence mode="wait" initial={false}>
-            {showFeedback && (
-              <motion.div
-                key="feedback-block"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
+            <AnimatePresence mode="wait" initial={false}>
+              {showFeedback && (
+                <motion.div
+                  key="feedback-block"
+                  initial={{ opacity: 0, height: 0, y: 14 }}
+                  animate={{ opacity: 1, height: 'auto', y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: 8 }}
                 transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                className="overflow-hidden"
+                className="mt-6 overflow-hidden text-left"
               >
-                <p className="mb-3 text-[15px] text-neutral-800">Care to share more about it?</p>
-                <input
-                  type="text"
-                  value={guestName}
-                  onChange={(e) => setGuestName(e.target.value)}
-                  maxLength={80}
-                  placeholder="Your name"
-                  className="mb-3 w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-[15px] text-neutral-900 outline-none ring-0 transition-shadow placeholder:text-neutral-400 focus:border-neutral-300 focus:shadow-[0_0_0_3px_rgba(45,90,39,0.12)]"
-                />
-                <textarea
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  rows={5}
-                  placeholder=""
-                  className="mb-5 w-full resize-none rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-[15px] text-neutral-900 outline-none ring-0 transition-shadow placeholder:text-neutral-400 focus:border-neutral-300 focus:shadow-[0_0_0_3px_rgba(45,90,39,0.12)]"
-                />
-                <button
-                  type="button"
-                  onClick={submitFeedback}
-                  disabled={isSubmitting}
-                  className="w-full rounded-2xl bg-[#A8E6CF] py-4 text-center text-sm font-bold uppercase tracking-[0.08em] text-[#2D5A27] shadow-sm transition-all hover:brightness-[1.02] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-65"
-                >
-                  {isSubmitting ? 'Publishing...' : 'PUBLISH FEEDBACK'}
-                </button>
-                <p className="mt-4 text-center text-xs leading-relaxed text-neutral-600">
-                  Your message is sent to our team in confidence. We use it to improve the
-                  experience for every guest.
-                </p>
-                {submitError && <p className="mt-3 text-center text-sm text-red-600">{submitError}</p>}
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <div className="rounded-[1.5rem] border border-white/8 bg-white/[0.04] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-4.5">
+                    <textarea
+                      value={feedback}
+                      onChange={(e) => setFeedback(e.target.value)}
+                      rows={4}
+                      placeholder="What could we improve?"
+                      className="mb-4 w-full resize-none rounded-2xl border border-white/8 bg-white/6 px-4 py-3 text-[15px] text-white outline-none ring-0 transition placeholder:text-white/30 focus:border-[#d8ff1f]/30 focus:bg-white/8 focus:shadow-[0_0_0_3px_rgba(216,255,31,0.08)]"
+                    />
+                    <button
+                      type="button"
+                      onClick={submitFeedback}
+                      disabled={isSubmitting}
+                      className="w-full rounded-[1.25rem] bg-[#d8ff1f] py-4 text-center text-sm font-bold uppercase tracking-[0.14em] text-[#141414] shadow-[0_10px_30px_rgba(216,255,31,0.2)] transition-all hover:brightness-[1.02] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-65"
+                    >
+                      {isSubmitting ? 'Sending...' : 'Send Private Feedback'}
+                    </button>
+                    <p className="mt-4 text-center text-sm leading-relaxed text-white/45">
+                      Your message stays private and goes directly to our team.
+                    </p>
+                    {submitError && (
+                      <p className="mt-3 text-center text-sm text-red-300">{submitError}</p>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           <AnimatePresence>
             {submitted && (
@@ -274,21 +270,34 @@ function ReviewFlowPage() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
-                className="absolute inset-0 z-20 flex items-center justify-center rounded-[2rem] bg-black/45 p-4 backdrop-blur-[2px]"
+                className="absolute inset-0 z-20 flex items-center justify-center rounded-[2rem] bg-black/55 p-4 backdrop-blur-[4px]"
               >
                 <motion.div
                   initial={{ opacity: 0, scale: 0.94, y: 12 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.96 }}
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  className="w-full max-w-[min(100%,320px)] overflow-hidden rounded-3xl bg-white shadow-xl"
+                  className="w-full max-w-[min(100%,360px)] overflow-hidden rounded-[1.8rem] border border-white/8 bg-[#17181b] shadow-[0_20px_60px_rgba(0,0,0,0.45)]"
                 >
-                  <div className="px-6 pb-8 pt-6 text-center">
-                    <h2 id="success-title" className="mb-2 text-xl font-bold tracking-tight text-black">
-                      Thank you!
+                  <div className="px-6 pb-8 pt-7 text-center">
+                    <div className="mb-4 flex justify-center">
+                      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#d8ff1f] text-[#111]">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path
+                            d="M6 12.5l4 4 8-9"
+                            stroke="currentColor"
+                            strokeWidth="2.4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
+                    </div>
+                    <h2 id="success-title" className="mb-2 text-2xl font-semibold tracking-tight text-white">
+                      Thank you
                     </h2>
-                    <p className="text-sm leading-relaxed text-neutral-600">
-                      We read every message and use it to raise our standards for every guest.
+                    <p className="text-sm leading-relaxed text-white/55">
+                      We read every message and use it to improve the guest experience.
                     </p>
                   </div>
                 </motion.div>
